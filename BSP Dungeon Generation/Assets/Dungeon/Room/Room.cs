@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class Room
 {
-    protected int left, right, top, bottom;
+    protected float left, right, top, bottom;
 
-    public Room(int left, int right, int top, int bottom)
+    public Room(float left, float right, float top, float bottom)
     {
         this.left = left;
         this.right = right;
@@ -14,14 +14,14 @@ public class Room
 
     #region Getters
     // Expects Inclusive bounds (right >= left, same for top/bot)
-    public int GetWidth() { return right - left + 1; }
-    public int GetHeight() { return bottom - top + 1; }
+    public float GetWidth() { return right - left + 1; }
+    public float GetHeight() { return bottom - top + 1; }
     public Vector2 GetCenter() { return new Vector2((left + right) * 0.5f, (top + bottom) * 0.5f); }
 
-    // TODO are these even needed?????
-    protected int GetLeft() { return left; }
-    protected int GetRight() {  return right; }
-    protected int GetTop() { return top; }
-    protected int GetBottom() { return bottom; }
+    // TODO are these even needed????? (maybe make properties atp) {get; private set}
+    public float GetLeft() { return left; }
+    public float GetRight() {  return right; }
+    public float GetTop() { return top; }
+    public float GetBottom() { return bottom; }
     #endregion
 }
