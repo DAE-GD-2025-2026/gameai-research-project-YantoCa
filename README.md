@@ -1,1 +1,54 @@
-# Research: Binary Space Partitioning for Dungeon Generation
+# Research: Binary Space Partitioning (BSP) for Dungeon Generation
+> Rough Draft
+
+# Introduction/description
+Binary Space Partitioning (BSP) is a procedural generation technique. This technique is used to recursively devide a large map area into smaller regions, eventually formaing a structure that can be used to place rooms and connect them.
+
+BSP is based on the idea of splitting space into a binary tree structure, where each node represents a region of the map and each split creates two child regions. These child regions get reused until the desired outcome is fullfilled.
+
+In procedural dungeon generation, BSP is commonly used for:
+- Structured dungeon layouts
+- Ensures all rooms are connected
+- Being controllable
+
+# Design/Implementation
+
+
+# Result
+
+# Conclusion
+
+# References (possible links)
+wikipedia
+arxiv 
+
+# General BSP explanation
+## What is BSP (wikipedia) https://en.wikipedia.org/wiki/Binary_space_partitioning#Overview
+BSP is a method for space partitioning which recusively subdivdes a space into two new spaces. 
+this process of subdividing gives rise to a representation of objects within the space in the form of a tree data structure known as a **Binary Space Partitioning**.
+
+BSP was created for 3D computer graphics in 1969 because it can efficiently give spatial information about objects in a scene for rendering.
+
+A disadvantage of binary space partitioning is that generating a BSP tree can be time-consuming. Typically it is therefore performed once on static geometry, as a pre-calculation step, prior to rendering or other real-time operations in a scene.
+The expense of constructing a BSP tree makes it difficult and inefficient to directly implement moving object into a tree.
+
+> application, BSP treses are often used by 3d video games, particularly first-person shooters and those with indoor environments. BSP gets used in engine such as Doom, Quake, GoldSrc and Source engines. In them BSP trees containing the static geometry of a scene are often used together with a Z-buffer, to correctly merge movable objects such as doors and characters onto the background scene. While binary space partitioning provides a convenient way to store and retrieve spatial information about polygons in a scene, it does not solve the problem of visible surface determination. bsp trees have also been applied to image compression.
+
+## what is BSP (GeekForGeeks) https://www.geeksforgeeks.org/dsa/binary-space-partitioning/
+recursive subdividing a space blabla bla.
+arose in the context of 3D computer graphics 1969. used for rendering a scene, for objects being ordered from front to back
+mentioning painters algorithm again.
+solved the problems of painters alogrithm that were:
+- the time required to sort polygons in the back to front order ( cyclic overlaps)
+- prvious polygons with each closer objects. (intersecting polygons)
+
+bsp is treated as a generic process of **recusively** dividing a scene into two until the partitioning **satisfies one or more requirements**
+
+Disadvantage of BSP:
+- Generating a BSP tree can be time-consuming
+- BSP does not solve the problem of visible surface determination.
+
+Uses of BSP
+- It is used in collision detection in 3D video games and robotics.
+- it is used in ray tracing
+- it is involved in the handling of complex spatial scenes=
