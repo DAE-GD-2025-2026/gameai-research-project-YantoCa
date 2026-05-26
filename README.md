@@ -26,6 +26,7 @@ arxiv
 - BSP dungeon generation normal
 - Time measuring how long generation takes
 - maybe MAYBE even make a hybrid generation (inspired by the game "Barony")
+- maybe maybe slight cosmically small chance that ill recreate doom map generation
 
 # General BSP explanation
 ## What is BSP (wikipedia) https://en.wikipedia.org/wiki/Binary_space_partitioning#Overview
