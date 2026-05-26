@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7211609951595323023}
-  - component: {fileID: 5266467488439633135}
+  - component: {fileID: 5522643975471945107}
   - component: {fileID: 6883825485217241366}
   m_Layer: 0
   m_Name: Room
@@ -33,7 +33,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5266467488439633135
+--- !u!114 &5522643975471945107
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -42,11 +42,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 6736115300709470467}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 13d3728e492dce94ba0d5fdde7fe1fe0, type: 3}
+  m_Script: {fileID: 11500000, guid: 34623bb9d739d65479c793f9815c52de, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Room
-  roomWidth: 1
-  roomHeight: 1
+  m_EditorClassIdentifier: Assembly-CSharp::RoomRenderer
+  _width: 1
+  _height: 1
 --- !u!212 &6883825485217241366
 SpriteRenderer:
   serializedVersion: 2

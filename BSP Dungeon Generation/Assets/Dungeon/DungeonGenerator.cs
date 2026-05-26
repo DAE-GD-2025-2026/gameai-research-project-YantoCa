@@ -1,3 +1,4 @@
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class DungeonGenerator : MonoBehaviour
@@ -18,7 +19,18 @@ public class DungeonGenerator : MonoBehaviour
 
     private void GenerateDungeon()
     {
-        GameObject test = Instantiate(_roomPrefab, this.transform.position, this.transform.localRotation, transform);
-        test.GetComponent<Room>().InitializeRoom(_startWidth, _startHeight);
+        // Testing BSPNode
+        BSPNode node = new BSPNode(2, 3, 0, 2);
+        
+        BuildRoom(node);
+
+        //GameObject test = Instantiate(_roomPrefab, this.transform.position, this.transform.localRotation, transform);
+        //test.GetComponent<RoomRenderer>().InitializeRoom(_startWidth, _startHeight);
+    }
+
+    private void BuildRoom(Room room)
+    {
+        GameObject roomInstance = Instantiate(_roomPrefab, Vector3.one * room.GetCenter(), Quaternion.identity, transform);
+        roomInstance.GetComponent<RoomRenderer>().InitializeRoom(room.GetWidth(), room.GetWidth());
     }
 }
