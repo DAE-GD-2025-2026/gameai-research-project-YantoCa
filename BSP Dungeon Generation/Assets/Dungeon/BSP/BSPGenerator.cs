@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 
 public class BSPGenerator
@@ -15,6 +16,11 @@ public class BSPGenerator
     // Corridor
     public const float _corridorThickness = 1f;
 
+    // Time
+    private double _timeSplit;
+    private double _timeRooms;
+    private double _timeCorridors;
+
     public BSPGenerator(float left, float right, float top, float bottom, float smallestWidth, float smallestHeight)
     {
         _minWidth = smallestWidth;
@@ -22,16 +28,34 @@ public class BSPGenerator
 
         _rootNode = new BSPNode(left, right, top, bottom);
 
+        // Start Timer
+        Stopwatch timer = Stopwatch.StartNew();
+
         // Start the recursion
         Split(_rootNode);
-
+        _timeSplit = timer.Elapsed.TotalMilliseconds;
+        
         // Resize rooms
         GenerateRoomsInLeaves(_rootNode);
+        _timeRooms = timer.Elapsed.TotalMilliseconds - _timeSplit;
 
         // Create Corridors
         ConnectNodes(_rootNode);
+        _timeCorridors = timer.Elapsed.TotalMilliseconds - (_timeSplit + _timeRooms);
+
+        timer.Stop();
+        DisplayTime();
     }
-    #region Checked and works
+    private void DisplayTime()
+    {
+        UnityEngine.Debug.Log($"Time Spent on Splitting: {_timeSplit:F4} ms");
+        UnityEngine.Debug.Log($"Time Spent on Rooms: {_timeRooms:F4} ms");
+        UnityEngine.Debug.Log($"Time Spent on Corridors: {_timeCorridors:F4} ms");
+
+        double totalTime = _timeSplit + _timeRooms + _timeCorridors;
+        UnityEngine.Debug.Log($"Total Time: {totalTime:F4} ms");
+    }
+
     private void Split(BSPNode node)
     { 
         if (node.GetWidth() <= _minWidth * 2 && node.GetHeight() <= _minHeight * 2) return; // Stop early, Smallest it can go 
@@ -127,19 +151,15 @@ public class BSPGenerator
             GenerateRoomsInLeaves(node._leftNode);
             GenerateRoomsInLeaves(node._rightNode);
         }
-    }
-    #endregion 
-
-    // --- NEW: TREE ROUTING CONNECTION PASS ---
+    } 
+     
     private void ConnectNodes(BSPNode node)
     {
         if (node == null || node.IsLeaf()) return;
-
-        // Traverse down to lower branches first
+         
         ConnectNodes(node._leftNode);
         ConnectNodes(node._rightNode);
-
-        // Retrieve a valid room from each child subtree branch
+         
         Room roomA = GetRoomFromSubtree(node._leftNode);
         Room roomB = GetRoomFromSubtree(node._rightNode);
 
@@ -148,33 +168,27 @@ public class BSPGenerator
             CreateLShapedCorridor(roomA, roomB);
         }
     }
-
-    // Recursively searches down to find any available leaf room in a branch
+     
     private Room GetRoomFromSubtree(BSPNode node)
     {
         if (node == null) return null;
         if (node.IsLeaf()) return node._actualRoom;
-
-        // Pass up a random child's room to represent this connected branch
+         
         return Random.value > 0.5f ? GetRoomFromSubtree(node._leftNode) : GetRoomFromSubtree(node._rightNode);
     }
-
-    // --- NEW: L-SHAPED MATH SEGMENT BUILDER ---
+     
     private void CreateLShapedCorridor(Room a, Room b)
     {
         Vector2 centerA = a.GetCenter();
         Vector2 centerB = b.GetCenter();
-
-        // Alternate starting directions for extra layout variance
+         
         if (Random.value > 0.5f)
-        {
-            // Move horizontally from A to B's X coordinate, then vertically to B's Y coordinate
+        { 
             BuildHorizontalSegment(centerA.x, centerB.x, centerA.y);
             BuildVerticalSegment(centerA.y, centerB.y, centerB.x);
         }
         else
-        {
-            // Move vertically from A to B's Y coordinate, then horizontally to B's X coordinate
+        { 
             BuildVerticalSegment(centerA.y, centerB.y, centerA.x);
             BuildHorizontalSegment(centerA.x, centerB.x, centerB.y);
         }
@@ -185,7 +199,7 @@ public class BSPGenerator
         float leftX = Mathf.Min(startX, endX);
         float rightX = Mathf.Max(startX, endX);
 
-        if (rightX - leftX <= 0.01f) return; // Prevent spawning zero-width nodes
+        if (rightX - leftX <= 0.01f) return;  
 
         Corridors.Add(new Room(leftX, rightX, y + (_corridorThickness * 0.5f), y - (_corridorThickness * 0.5f)));
     }
@@ -195,7 +209,7 @@ public class BSPGenerator
         float bottomY = Mathf.Min(startY, endY);
         float topY = Mathf.Max(startY, endY);
 
-        if (topY - bottomY <= 0.01f) return; // Prevent spawning zero-height nodes
+        if (topY - bottomY <= 0.01f) return;  
 
         Corridors.Add(new Room(x - (_corridorThickness * 0.5f), x + (_corridorThickness * 0.5f), topY, bottomY));
     }
