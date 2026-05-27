@@ -19,13 +19,31 @@ public class DungeonGenerator : MonoBehaviour
 
     private void GenerateDungeon()
     {
-        // Testing BSPNode
-        BSPNode node = new BSPNode(2, 3, 0, 2);
-        
-        BuildRoom(node);
+        BSPGenerator BSPTree = new BSPGenerator(transform.position.x - (_startWidth * 0.5f),
+                                                _startWidth, 
+                                                _startHeight, 
+                                                transform.position.y - (_startHeight * 0.5f),
+                                                _smallestWidth,
+                                                _smallestHeight);
 
-        //GameObject test = Instantiate(_roomPrefab, this.transform.position, this.transform.localRotation, transform);
-        //test.GetComponent<RoomRenderer>().InitializeRoom(_startWidth, _startHeight);
+        CreateRooms(BSPTree._rootNode);
+    }
+
+    private void CreateRooms(BSPNode node)
+    {
+        if (node == null) return; // Empty skip
+
+        if (node.IsLeaf())
+        {
+            // Build Leaf Room
+            BuildRoom(node);
+        }
+        else
+        {
+            // Recursion
+            CreateRooms(node._leftNode);
+            CreateRooms(node._rightNode);
+        }
     }
 
     private void BuildRoom(Room room)

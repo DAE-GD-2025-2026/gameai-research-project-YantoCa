@@ -403,10 +403,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DungeonGenerator
   _roomPrefab: {fileID: 6736115300709470467, guid: dccf33f5c2e8e4e478c8b72d8ed6f87e, type: 3}
-  _startWidth: 4
-  _startHeight: 3
-  _smallestWidth: 0
-  _smallestHeight: 0
+  _startWidth: 40
+  _startHeight: 40
+  _smallestWidth: 4
+  _smallestHeight: 4
 --- !u!4 &2113659874
 Transform:
   m_ObjectHideFlags: 0

@@ -14,8 +14,8 @@ public class Room
 
     #region Getters
     // Expects Inclusive bounds (right >= left, same for top/bot)
-    public float GetWidth() { return right - left + 1; }
-    public float GetHeight() { return bottom - top + 1; }
+    public float GetWidth() { return right - left; } // right should be the HIGHEST value
+    public float GetHeight() { return top - bottom; } // top should be the HIGHEST value
     public Vector2 GetCenter() { return new Vector2((left + right) * 0.5f, (top + bottom) * 0.5f); }
 
     // TODO are these even needed????? (maybe make properties atp) {get; private set}
