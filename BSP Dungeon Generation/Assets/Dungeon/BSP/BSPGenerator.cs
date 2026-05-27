@@ -1,4 +1,3 @@
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class BSPGenerator
@@ -6,18 +5,10 @@ public class BSPGenerator
     public BSPNode _rootNode { get; private set; }
 
     // Limits
-    private float _minWidth = 8; // currently this is hte min on BOTH sides
-    private const int _maxWidth = 20;
+    private float _minWidth = 8;  
+    private float _minHeight = 8;
 
-    private float _minHeight = 8; // currently is the min on both sides
-    private const int _maxHeight = 20;
-
-    private const int _trimSize = 1;
-    private const int _corridorMargin = 1;
-    private const int _minCorridorSize = 2;
-
-    private bool _horizontalSplit;
-    private bool _verticalSplit;
+    private const float _padding = 1f;
 
     public BSPGenerator(float left, float right, float top, float bottom, float smallestWidth, float smallestHeight)
     {
@@ -28,6 +19,9 @@ public class BSPGenerator
 
         // Start the recursion
         Split(_rootNode);
+
+        // Resize rooms
+        GenerateRoomsInLeaves(_rootNode); 
     }
 
     private void Split(BSPNode node)
@@ -36,11 +30,11 @@ public class BSPGenerator
 
         bool splitHorizontally = Random.value > 0.5f; // Randomize Vertical or Horizontal
          
-        if (node.GetWidth() > node.GetHeight() * 1.25f)
+        if (node.GetWidth() > node.GetHeight())
         {
             splitHorizontally = false; 
         }
-        else if (node.GetHeight() > node.GetWidth() * 1.25f)
+        else if (node.GetHeight() > node.GetWidth())
         {
             splitHorizontally = true; 
         }
@@ -95,4 +89,37 @@ public class BSPGenerator
         node._leftNode = new BSPNode(node.GetLeft(), splitX, node.GetTop(), node.GetBottom()); 
         node._rightNode = new BSPNode(splitX, node.GetRight(), node.GetTop(), node.GetBottom());
     }
+
+    private void GenerateRoomsInLeaves(BSPNode node)
+    {
+        if (node == null) return;
+
+        if (node.IsLeaf())
+        { 
+            float extraPadding = _padding * 2f;
+
+            float maxW = node.GetWidth() - extraPadding;
+            float maxH = node.GetHeight() - extraPadding;
+
+            float minW = Mathf.Min(_minWidth * 0.5f - extraPadding, maxW);
+            float minH = Mathf.Min(_minWidth * 0.5f - extraPadding, maxH);
+
+            // Randomize Width/Height of room
+            float roomW = Random.Range(minW, maxW);
+            float roomH = Random.Range(minH, maxH);
+
+            // Randomly position the custom room inside the leaf boundaries
+            float roomLeft = Random.Range(node.GetLeft() + _padding, node.GetRight() - roomW - _padding);
+            float roomBottom = Random.Range(node.GetBottom() + _padding, node.GetTop() - roomH - _padding);
+            
+            node._actualRoom = new Room(roomLeft, roomLeft + roomW, roomBottom + roomH, roomBottom);
+        }
+        else
+        {
+            GenerateRoomsInLeaves(node._leftNode);
+            GenerateRoomsInLeaves(node._rightNode);
+        }
+    }
+
+    
 }

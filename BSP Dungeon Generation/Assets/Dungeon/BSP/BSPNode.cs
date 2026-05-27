@@ -5,6 +5,8 @@ public class BSPNode : Room
     public BSPNode _leftNode;
     public BSPNode _rightNode;
 
+    public Room _actualRoom; // resizing it inside of the BSP bounds
+
     public BSPNode(float left, float right, float top, float bottom) : base(left, right, top, bottom)
     { 
         _leftNode = null;

@@ -1,9 +1,11 @@
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class DungeonGenerator : MonoBehaviour
 {
     [SerializeField] private GameObject _roomPrefab;
+
+    [SerializeField] private GameObject _roomCollection;
+    [SerializeField] private GameObject _debugCollection;
 
     [Space(10), Header("Starting Values")]
     [SerializeField] private float _startWidth;
@@ -19,10 +21,10 @@ public class DungeonGenerator : MonoBehaviour
 
     private void GenerateDungeon()
     {
-        BSPGenerator BSPTree = new BSPGenerator(transform.position.x - (_startWidth * 0.5f),
+        BSPGenerator BSPTree = new BSPGenerator(0,
                                                 _startWidth, 
                                                 _startHeight, 
-                                                transform.position.y - (_startHeight * 0.5f),
+                                                0,
                                                 _smallestWidth,
                                                 _smallestHeight);
 
@@ -36,7 +38,8 @@ public class DungeonGenerator : MonoBehaviour
         if (node.IsLeaf())
         {
             // Build Leaf Room
-            BuildRoom(node);
+            DrawBSPSquare(node);
+            BuildRoom(node._actualRoom);
         }
         else
         {
@@ -48,7 +51,12 @@ public class DungeonGenerator : MonoBehaviour
 
     private void BuildRoom(Room room)
     {
-        GameObject roomInstance = Instantiate(_roomPrefab, Vector3.one * room.GetCenter(), Quaternion.identity, transform);
-        roomInstance.GetComponent<RoomRenderer>().InitializeRoom(room.GetWidth(), room.GetWidth());
+        GameObject roomInstance = Instantiate(_roomPrefab, Vector3.one * room.GetCenter(), Quaternion.identity, _roomCollection.transform);
+        roomInstance.GetComponent<RoomRenderer>().InitializeRoom(room.GetWidth(), room.GetHeight(), Random.ColorHSV());
+    } 
+    private void DrawBSPSquare(Room BSP)
+    {
+        GameObject roomInstance = Instantiate(_roomPrefab, Vector3.one * BSP.GetCenter(), Quaternion.identity, _debugCollection.transform);
+        roomInstance.GetComponent<RoomRenderer>().InitializeRoom(BSP.GetWidth(), BSP.GetHeight(), new Color(Random.Range(0f, 1f),0f,0f));
     }
 }
