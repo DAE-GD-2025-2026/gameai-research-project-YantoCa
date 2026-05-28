@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Diagnostics; 
 using UnityEngine;
 
 public class BSPGenerator
@@ -40,7 +40,8 @@ public class BSPGenerator
         _timeRooms = timer.Elapsed.TotalMilliseconds - _timeSplit;
 
         // Create Corridors
-        ConnectNodes(_rootNode);
+        //ConnectNodes(_rootNode);
+        ConnectLeafSisters(_rootNode);
         _timeCorridors = timer.Elapsed.TotalMilliseconds - (_timeSplit + _timeRooms);
 
         timer.Stop();
@@ -56,6 +57,7 @@ public class BSPGenerator
         UnityEngine.Debug.Log($"Total Time: {totalTime:F4} ms");
     }
 
+#region BSP
     private void Split(BSPNode node)
     { 
         if (node.GetWidth() <= _minWidth * 2 && node.GetHeight() <= _minHeight * 2) return; // Stop early, Smallest it can go 
@@ -121,7 +123,9 @@ public class BSPGenerator
         node._leftNode = new BSPNode(node.GetLeft(), splitX, node.GetTop(), node.GetBottom()); 
         node._rightNode = new BSPNode(splitX, node.GetRight(), node.GetTop(), node.GetBottom());
     }
+    #endregion
 
+#region Rooms
     private void GenerateRoomsInLeaves(BSPNode node)
     {
         if (node == null) return;
@@ -134,7 +138,7 @@ public class BSPGenerator
             float maxH = node.GetHeight() - extraPadding;
 
             float minW = Mathf.Min(_minWidth * 0.5f - extraPadding, maxW);
-            float minH = Mathf.Min(_minWidth * 0.5f - extraPadding, maxH);
+            float minH = Mathf.Min(_minHeight * 0.5f - extraPadding, maxH);
 
             // Randomize Width/Height of room
             float roomW = Random.Range(minW, maxW);
@@ -151,47 +155,112 @@ public class BSPGenerator
             GenerateRoomsInLeaves(node._leftNode);
             GenerateRoomsInLeaves(node._rightNode);
         }
-    } 
-     
-    private void ConnectNodes(BSPNode node)
-    {
-        if (node == null || node.IsLeaf()) return;
-         
-        ConnectNodes(node._leftNode);
-        ConnectNodes(node._rightNode);
-         
-        Room roomA = GetRoomFromSubtree(node._leftNode);
-        Room roomB = GetRoomFromSubtree(node._rightNode);
-
-        if (roomA != null && roomB != null)
-        {
-            CreateLShapedCorridor(roomA, roomB);
-        }
     }
+#endregion
+
+#region Corridors
+
+    private void ConnectLeafSisters(BSPNode node)
+    {
+        if (node == null || node.IsLeaf()) return; // return early
+
+        // Recursion TODO maybe after??
+        ConnectLeafSisters(node._leftNode);
+        ConnectLeafSisters(node._rightNode);
+
+        if (node._leftNode.IsLeaf() && node._rightNode.IsLeaf()) // are sisters leaves
+        { 
+            ConnectRooms(node._leftNode._actualRoom, node._rightNode._actualRoom);
+        }
+    } 
+
+    private void ConnectRooms(Room a, Room b)
+    {
+        float overlapBottom = Mathf.Max(a.GetBottom(), b.GetBottom());
+        float overlapTop = Mathf.Min(a.GetTop(), b.GetTop());
+    
+        if(overlapBottom < overlapTop)
+        {
+            CreateHorizontalCorridor(a, b, overlapBottom, overlapTop);
+            return;
+        }
+
+        float overlapLeft = Mathf.Max(a.GetLeft(), b.GetLeft());
+        float overlapRight = Mathf.Min(a.GetRight(), b.GetRight());
+
+        if (overlapLeft < overlapRight)
+        {
+            CreateVerticalCorridor(a, b, overlapLeft, overlapRight);
+            return;
+        }
+
+        BuildZSegment(a, b);
+    }
+
      
     private Room GetRoomFromSubtree(BSPNode node)
     {
-        if (node == null) return null;
-        if (node.IsLeaf()) return node._actualRoom;
-         
-        return Random.value > 0.5f ? GetRoomFromSubtree(node._leftNode) : GetRoomFromSubtree(node._rightNode);
+        //if (node == null) return null;
+        //if (node.IsLeaf()) return node._actualRoom;
+
+        //return Random.value > 0.5f ? GetRoomFromSubtree(node._leftNode) : GetRoomFromSubtree(node._rightNode);
+        return null;
     }
      
-    private void CreateLShapedCorridor(Room a, Room b)
+    private void BuildZSegment(Room a, Room b)
     {
         Vector2 centerA = a.GetCenter();
         Vector2 centerB = b.GetCenter();
-         
-        if (Random.value > 0.5f)
-        { 
-            BuildHorizontalSegment(centerA.x, centerB.x, centerA.y);
-            BuildVerticalSegment(centerA.y, centerB.y, centerB.x);
+
+        float midX = (centerA.x + centerB.x) * 0.5f;
+
+        // Z Shape
+        BuildHorizontalSegment(centerA.x, midX, centerA.y); 
+        BuildVerticalSegment(centerA.y, centerB.y, midX); 
+        BuildHorizontalSegment(midX, centerB.x, centerB.y);
+    }
+
+    private void CreateHorizontalCorridor(Room a, Room b, float overlapBot, float overlapTop)
+    {
+        // Within Y Limits
+        float y = Random.Range(overlapBot, overlapTop);
+
+        float startX, endX;
+
+        // Check Which Side
+        if(a.GetCenter().x < b.GetCenter().x)
+        {
+            startX = a.GetRight();
+            endX = b.GetLeft();
         }
         else
-        { 
-            BuildVerticalSegment(centerA.y, centerB.y, centerA.x);
-            BuildHorizontalSegment(centerA.x, centerB.x, centerB.y);
+        {
+            startX = b.GetRight();
+            endX = a.GetLeft();
         }
+
+        BuildHorizontalSegment(startX, endX, y);
+    }
+    private void CreateVerticalCorridor(Room a, Room b, float overlapLeft, float overlapRight)
+    {
+        // Within X Limits
+        float x = Random.Range(overlapLeft, overlapRight);
+
+        float startY, endY;
+
+        // Check Which Side
+        if (a.GetCenter().y < b.GetCenter().y)
+        {
+            startY = a.GetTop();
+            endY = b.GetBottom();
+        }
+        else
+        {
+            startY = b.GetTop();
+            endY = a.GetBottom();
+        }
+
+        BuildVerticalSegment(startY, endY, x);
     }
 
     private void BuildHorizontalSegment(float startX, float endX, float y)
@@ -199,7 +268,7 @@ public class BSPGenerator
         float leftX = Mathf.Min(startX, endX);
         float rightX = Mathf.Max(startX, endX);
 
-        if (rightX - leftX <= 0.01f) return;  
+        if (rightX - leftX <= 0.01f) return;
 
         Corridors.Add(new Room(leftX, rightX, y + (_corridorThickness * 0.5f), y - (_corridorThickness * 0.5f)));
     }
@@ -213,4 +282,5 @@ public class BSPGenerator
 
         Corridors.Add(new Room(x - (_corridorThickness * 0.5f), x + (_corridorThickness * 0.5f), topY, bottomY));
     }
+    #endregion
 }
