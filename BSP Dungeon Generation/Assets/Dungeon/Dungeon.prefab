@@ -113,11 +113,12 @@ MonoBehaviour:
   _roomCollection: {fileID: 9087888532576636794}
   _corridorsCollection: {fileID: 3752360609092051376}
   _debugCollection: {fileID: 7775167793773271300}
+  _generateDebugBSP: 1
+  _isTrimmed: 0
   _startWidth: 50
   _startHeight: 50
   _smallestWidth: 10
   _smallestHeight: 10
-  _generateDebugBSP: 1
 --- !u!1 &9087888532576636794
 GameObject:
   m_ObjectHideFlags: 0

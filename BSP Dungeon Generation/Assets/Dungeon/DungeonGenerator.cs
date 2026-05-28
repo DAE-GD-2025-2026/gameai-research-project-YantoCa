@@ -11,6 +11,10 @@ public class DungeonGenerator : MonoBehaviour
     [SerializeField] private GameObject _corridorsCollection;
     [SerializeField] private GameObject _debugCollection;
 
+    [Space(10), Header("Dungeon Options")]
+    [SerializeField] private bool _generateDebugBSP = false;
+    [SerializeField] private bool _isTrimmed = false;
+
     [Space(10), Header("Starting Values")]
     [SerializeField] private float _startWidth;
     [SerializeField] private float _startHeight;
@@ -19,8 +23,6 @@ public class DungeonGenerator : MonoBehaviour
     [SerializeField] private float _smallestWidth;
     [SerializeField] private float _smallestHeight;
     
-    [SerializeField] private bool _generateDebugBSP = false;
-    [SerializeField] private bool _isTrimmed = false;
     void Start()
     {
         GenerateDungeon();
