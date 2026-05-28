@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class DungeonGenerator : MonoBehaviour
 {
@@ -22,8 +23,32 @@ public class DungeonGenerator : MonoBehaviour
     void Start()
     {
         GenerateDungeon();
-    } 
+    }
 
+    void Update()
+    {
+        if (Keyboard.current.rKey.wasPressedThisFrame)
+        {
+            Debug.Log("Generating new Dungeon...");
+            DestroyDungeon();
+            GenerateDungeon();
+        }
+    }
+    private void DestroyDungeon()
+    {
+        foreach (Transform child in _roomCollection.transform)
+        {
+            Destroy(child.gameObject);
+        }
+        foreach (Transform child in _corridorsCollection.transform)
+        {
+            Destroy(child.gameObject);
+        }
+        foreach (Transform child in _debugCollection.transform)
+        {
+            Destroy(child.gameObject);
+        }
+    }
     private void GenerateDungeon()
     {
         BSPGenerator BSPTree = new BSPGenerator(0,
