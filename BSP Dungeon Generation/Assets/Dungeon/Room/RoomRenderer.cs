@@ -15,12 +15,13 @@ public class RoomRenderer : MonoBehaviour
         ResizeSprite(_width, _height);
     }
 
-    public void InitializeRoom(float width, float height, Color color) // TODO maybe return room or something gameobject even
+    public void InitializeRoom(float width, float height, Color color, int SortOrder) // TODO maybe return room or something gameobject even
     {
         // Position gets set through the initialize "Instantiate(room, POSITION, rotation);"
         if(sr != null) sr.color = color;
 
         ResizeSprite(width, height);
+        sr.sortingOrder = SortOrder;
     }
 
     private void ResizeSprite(float width, float height)

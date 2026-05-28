@@ -21,7 +21,7 @@ public class BSPGenerator
     private double _timeRooms;
     private double _timeCorridors;
 
-    public BSPGenerator(float left, float right, float top, float bottom, float smallestWidth, float smallestHeight)
+    public BSPGenerator(float left, float right, float top, float bottom, float smallestWidth, float smallestHeight, bool isTrimmed)
     {
         _minWidth = smallestWidth;
         _minHeight = smallestHeight;
@@ -34,10 +34,17 @@ public class BSPGenerator
         // Start the recursion
         Split(_rootNode);
         _timeSplit = timer.Elapsed.TotalMilliseconds;
-        
+
         // Resize rooms
-        GenerateRoomsInLeaves(_rootNode);
-        _timeRooms = timer.Elapsed.TotalMilliseconds - _timeSplit;
+        if (isTrimmed)
+        {
+            GenerateRoomsInLeavesTrim(_rootNode);
+        }
+        else
+        {
+            GenerateRoomsInLeaves(_rootNode);
+        }
+            _timeRooms = timer.Elapsed.TotalMilliseconds - _timeSplit;
 
         // Create Corridors
         ConnectNodes(_rootNode); 
@@ -155,40 +162,82 @@ public class BSPGenerator
             GenerateRoomsInLeaves(node._rightNode);
         }
     }
-#endregion
+    private void GenerateRoomsInLeavesTrim(BSPNode node)
+    {
+        if (node == null) return;
 
-#region Corridors
+        if (node.IsLeaf())
+        {
+            float left = node.GetLeft() + _padding;
+            float right = node.GetRight() - _padding;
+            float top = node.GetTop() - _padding;
+            float bottom = node.GetBottom() + _padding;
 
+            node._actualRoom = new Room(left, right, top, bottom);
+        }
+        else
+        {
+            GenerateRoomsInLeavesTrim(node._leftNode);
+            GenerateRoomsInLeavesTrim(node._rightNode);
+        }
+    }
+    #endregion
+
+    #region Corridors
     private void ConnectNodes(BSPNode node)
     {
-        if (node == null || node.IsLeaf()) return; // Return early
+        if (node == null || node.IsLeaf()) return;
 
+        // Traverse down to lower branches first
         ConnectNodes(node._leftNode);
         ConnectNodes(node._rightNode);
 
-        //Room leftRoom = GetRoom(node._leftNode);
-        //Room rightRoom = GetRoom(node._rightNode);
+        // Retrieve a valid room from each child subtree branch
+        Room roomA = GetRoomFromSubtree(node._leftNode);
+        Room roomB = GetRoomFromSubtree(node._rightNode);
 
-        //if (leftRoom != null && rightRoom != null)
-        //{
-        //    ConnectRooms(leftRoom, rightRoom);
-        //}
-        if(node._rightNode.IsLeaf() && node._leftNode.IsLeaf())
+        if (roomA != null && roomB != null)
         {
-            ConnectRooms(node._rightNode._actualRoom, node._leftNode._actualRoom);
+            ConnectRooms(roomA, roomB);
         }
     }
-    //private Room GetRoom(BSPNode node)
-    //{
-    //    if (node == null) return null; // Stop recusrion if empty
 
-    //    if (node._actualRoom != null) return node._actualRoom;
+    private Room GetRoomFromSubtree(BSPNode node)
+    {
+        //  if (node == null) return null;
+        //  if (node.IsLeaf()) return node._actualRoom;
 
-    //    Room leftRoom = GetRoom(node._leftNode);
-    //    if (leftRoom != null) return leftRoom;
+        //// Pass up a random child's room to represent this connected branch
+        //return Random.value > 0.5f ? node._leftNode._actualRoom : node._rightNode._actualRoom;
 
-    //    return GetRoom(node._rightNode);
-    //}
+        if (node == null) return null;
+
+        // Leaf node = actual room
+        if (node.IsLeaf())
+        {
+            return node._actualRoom;
+        }
+
+        // Recursively grab a room from either branch
+        if (Random.value > 0.5f)
+        {
+            Room leftRoom = GetRoomFromSubtree(node._leftNode);
+
+            if (leftRoom != null)
+                return leftRoom;
+
+            return GetRoomFromSubtree(node._rightNode);
+        }
+        else
+        {
+            Room rightRoom = GetRoomFromSubtree(node._rightNode);
+
+            if (rightRoom != null)
+                return rightRoom;
+
+            return GetRoomFromSubtree(node._leftNode);
+        }
+    }
 
     private void ConnectRooms(Room a, Room b)
     {

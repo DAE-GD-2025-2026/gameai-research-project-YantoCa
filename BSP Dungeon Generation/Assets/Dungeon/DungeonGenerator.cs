@@ -20,6 +20,7 @@ public class DungeonGenerator : MonoBehaviour
     [SerializeField] private float _smallestHeight;
     
     [SerializeField] private bool _generateDebugBSP = false;
+    [SerializeField] private bool _isTrimmed = false;
     void Start()
     {
         GenerateDungeon();
@@ -56,7 +57,8 @@ public class DungeonGenerator : MonoBehaviour
                                                 _startHeight, 
                                                 0,
                                                 _smallestWidth,
-                                                _smallestHeight);
+                                                _smallestHeight,
+                                                _isTrimmed);
 
         if (_generateDebugBSP)
         {
@@ -75,7 +77,7 @@ public class DungeonGenerator : MonoBehaviour
         if (node.IsLeaf())
         {
             // Build Leaf Room
-            BuildRoom(node._actualRoom, _roomCollection, Random.ColorHSV());
+            BuildRoom(node._actualRoom, _roomCollection, Random.ColorHSV(), 2);
         }
         else
         {
@@ -85,16 +87,16 @@ public class DungeonGenerator : MonoBehaviour
         }
     }
 
-    private void BuildRoom(Room room, GameObject collection, Color color)
+    private void BuildRoom(Room room, GameObject collection, Color color, int sortOrder)
     {
         GameObject roomInstance = Instantiate(_roomPrefab, room.GetCenter(), Quaternion.identity, collection.transform);
-        roomInstance.GetComponent<RoomRenderer>().InitializeRoom(room.GetWidth(), room.GetHeight(), color);
+        roomInstance.GetComponent<RoomRenderer>().InitializeRoom(room.GetWidth(), room.GetHeight(), color, sortOrder);
     } 
     private void BuildCorridors(List<Room> corridors)
     {
         foreach (Room corridor in corridors)
         {
-            BuildRoom(corridor, _corridorsCollection, Color.white);
+            BuildRoom(corridor, _corridorsCollection, Color.white, 1);
         }
     }
 
@@ -106,7 +108,7 @@ public class DungeonGenerator : MonoBehaviour
         if (node.IsLeaf())
         {
             // Build Leaf Room
-            BuildRoom(node, _debugCollection, new Color(Random.Range(0f, 1f), 0f, 0f));
+            BuildRoom(node, _debugCollection, new Color(Random.Range(0f, 1f), 0f, 0f), 0);
         }
         else
         {
