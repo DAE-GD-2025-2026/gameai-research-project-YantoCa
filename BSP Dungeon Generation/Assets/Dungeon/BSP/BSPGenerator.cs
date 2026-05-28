@@ -166,32 +166,36 @@ public class BSPGenerator
         ConnectNodes(node._leftNode);
         ConnectNodes(node._rightNode);
 
-        Room leftRoom = GetRoom(node._leftNode);
-        Room rightRoom = GetRoom(node._rightNode);
+        //Room leftRoom = GetRoom(node._leftNode);
+        //Room rightRoom = GetRoom(node._rightNode);
 
-        if (leftRoom != null && rightRoom != null)
+        //if (leftRoom != null && rightRoom != null)
+        //{
+        //    ConnectRooms(leftRoom, rightRoom);
+        //}
+        if(node._rightNode.IsLeaf() && node._leftNode.IsLeaf())
         {
-            ConnectRooms(leftRoom, rightRoom);
+            ConnectRooms(node._rightNode._actualRoom, node._leftNode._actualRoom);
         }
     }
-    private Room GetRoom(BSPNode node)
-    {
-        if (node == null) return null; // Stop recusrion if empty
+    //private Room GetRoom(BSPNode node)
+    //{
+    //    if (node == null) return null; // Stop recusrion if empty
 
-        if (node._actualRoom != null) return node._actualRoom;
+    //    if (node._actualRoom != null) return node._actualRoom;
 
-        Room leftRoom = GetRoom(node._leftNode);
-        if (leftRoom != null) return leftRoom;
+    //    Room leftRoom = GetRoom(node._leftNode);
+    //    if (leftRoom != null) return leftRoom;
 
-        return GetRoom(node._rightNode);
-    }
+    //    return GetRoom(node._rightNode);
+    //}
 
     private void ConnectRooms(Room a, Room b)
     {
         float overlapBottom = Mathf.Max(a.GetBottom(), b.GetBottom());
         float overlapTop = Mathf.Min(a.GetTop(), b.GetTop());
     
-        if(overlapBottom < overlapTop)
+        if(overlapBottom < overlapTop) // between left and right side of room
         {
             CreateHorizontalCorridor(a, b, overlapBottom, overlapTop);
             return;
@@ -200,20 +204,41 @@ public class BSPGenerator
         float overlapLeft = Mathf.Max(a.GetLeft(), b.GetLeft());
         float overlapRight = Mathf.Min(a.GetRight(), b.GetRight());
 
-        if (overlapLeft < overlapRight)
+        if (overlapLeft < overlapRight) // between top and bot side of room 
         {
             CreateVerticalCorridor(a, b, overlapLeft, overlapRight);
             return;
         }
 
-        //BuildLSegment(a, b);
+        // None of these = connecting center
+        BuildLSegment(a, b);
     }
      
     private void BuildLSegment(Room a, Room b)
     {
-        // there was an attempt
+        Vector2 aC = a.GetCenter();
+        Vector2 bC = b.GetCenter();
 
-        // it just opens a new can of worms, with possible overlapping
+        // Randomize
+        bool horizontalFirst = Random.value > 0.5f;
+        float t = _corridorThickness * 0.5f;
+
+        if (horizontalFirst) // 7
+        { 
+            float cornerX = bC.x;
+            float cornerY = aC.y;
+
+            BuildHorizontalSegment(aC.x, cornerX + (aC.x < cornerX ? t : -t), cornerY);
+            BuildVerticalSegment(cornerY, bC.y + (aC.y < bC.y ? t : -t), cornerX); 
+        }
+        else // L
+        { 
+            float cornerX = aC.x;
+            float cornerY = bC.y;
+
+            BuildVerticalSegment(aC.y, cornerY + (aC.y < cornerY ? t : -t), cornerX);
+            BuildHorizontalSegment(cornerX, bC.x + (aC.x < bC.x ? t : -t), cornerY); 
+        } 
     }
 
     private void CreateHorizontalCorridor(Room a, Room b, float overlapBot, float overlapTop)
