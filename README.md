@@ -1,82 +1,89 @@
-# Research: Binary Space Partitioning (BSP) for Dungeon Generation
-> Rough Draft
+# Binary Space Partitioning (BSP) for Dungeon Generation
+## Introduction
+In this project, we use Binary Space Partitioning (BSP) to generate a dungeon.
 
-# Introduction/description
-Binary Space Partitioning (BSP) is a procedural generation technique. This technique is used to recursively devide a large map area into smaller regions, eventually formaing a structure that can be used to place rooms and connect them.
+The goal is to explain the generation process step-by-step, starting with what BSP actually is, then showing how we can use it for dungeon generation by either trimming or randomizing room placement and size. Finally, we connect everything together into a fully usable dungeon layout.
+[imgae BSP result dungeon]
 
-BSP is based on the idea of splitting space into a binary tree structure, where each node represents a region of the map and each split creates two child regions. These child regions get reused until the desired outcome is fullfilled.
+## What is BSP
+Binary Space Partitioning also called BSP is a method used to divide a 2D or 3D space into smaller regions. It is used in computer graphics and game development to make rendering scenes and handling collisions more efficient.
 
-In procedural dungeon generation, BSP is commonly used for:
-- Structured dungeon layouts
-- Ensures all rooms are connected
-- Being controllable
+A single BSP split divides a space into two new regions.
+[image rectangle]
+[image rectangle cut into 2 rectangles]
 
-# Design/Implementation
+Each split can also be displayed as a node. Every node stores references to a left/right child.
+[image nodes]
 
+This process you keep recursively doing until the desired outcome is reached, resulting in a structure known as a **BSP Tree**.
+[image node tree example]
+[image rectangle Example]
 
-# Result
+### Why would we use this
+BSP becomes useful for dungeon generation when we combine it with constraints and randomness.
+For example, we can define a minimum room size. Instead of splitting exactly in the middle, we split randomly while still respecting these minimum dimensions.
+[image rectangle with minimum size display]
 
-# Conclusion
+We can also randomize the split direction between horizontal and vertical cuts
+[image cutting horizontal and vertical]
 
-# References (possible links)
-wikipedia
-arxiv 
+By recursively repeating this process, we eventually create a randomized dungeon layout.
+[image entire BSP]
 
-# Things i want to do (goals):
-- BSP dungeon generation normal
-- Time measuring how long generation takes
-- maybe MAYBE even make a hybrid generation (inspired by the game "Barony")
-- maybe maybe slight cosmically small chance that ill recreate doom map generation
+But now that we have a tree like structure we can also see the ends of the tree.
+We call these Leaf nodes, they are the smallest possible cuts using our constraints.
+[imgage BSP tree with colored in leaf nodes]
 
-# General BSP explanation
-## What is BSP (wikipedia) https://en.wikipedia.org/wiki/Binary_space_partitioning#Overview
-BSP is a method for space partitioning which recusively subdivdes a space into two new spaces. 
-this process of subdividing gives rise to a representation of objects within the space in the form of a tree data structure known as a **Binary Space Partitioning**.
+## Implementation
+Now that we have a randomized grid structure, we can use it to create a dungeon.
+There are two possible approaches.
+- Trimming (Simple but stiff)
+- Randomizing Room Size and placement (more natural)
+### Trimming
+With this method we shrink each leaf node slightly by trimming its borders.
+[image shrunken down rooms]
 
-BSP was created for 3D computer graphics in 1969 because it can efficiently give spatial information about objects in a scene for rendering.
+After that, we go through our BSP tree and connect all the leaf nodes with corridors. creating a clean and structured dungeon layout.
+[image display connected TRIM with corridors]
 
-A disadvantage of binary space partitioning is that generating a BSP tree can be time-consuming. Typically it is therefore performed once on static geometry, as a pre-calculation step, prior to rendering or other real-time operations in a scene.
-The expense of constructing a BSP tree makes it difficult and inefficient to directly implement moving object into a tree.
+### Randomize
+To create a more natural-looking dungeon, in our leaf nodes we can randomize both the size and position of the room while staying within the constraint of the node.
+First we shrink each room by a random amount
+[image singular rectangle and shrunken]
 
-> application, BSP treses are often used by 3d video games, particularly first-person shooters and those with indoor environments. BSP gets used in engine such as Doom, Quake, GoldSrc and Source engines. In them BSP trees containing the static geometry of a scene are often used together with a Z-buffer, to correctly merge movable objects such as doors and characters onto the background scene. While binary space partitioning provides a convenient way to store and retrieve spatial information about polygons in a scene, it does not solve the problem of visible surface determination. bsp trees have also been applied to image compression.
+Next, we reposition the room within its node bounds.
+[image shrunkend rectangle relocated]
 
-## what is BSP (GeekForGeeks) https://www.geeksforgeeks.org/dsa/binary-space-partitioning/
-recursive subdividing a space blabla bla.
-arose in the context of 3D computer graphics 1969. used for rendering a scene, for objects being ordered from front to back
-mentioning painters algorithm again.
-solved the problems of painters alogrithm that were:
-- the time required to sort polygons in the back to front order ( cyclic overlaps)
-- prvious polygons with each closer objects. (intersecting polygons)
+Repeat this process for every leaf node.
+[image entire BSP with shrunken nodes]
 
-bsp is treated as a generic process of **recusively** dividing a scene into two until the partitioning **satisfies one or more requirements**
+Connecting these randomized rooms becomes more difficult because rooms are no longer aligned perfectly.
 
-Disadvantage of BSP:
-- Generating a BSP tree can be time-consuming
-- BSP does not solve the problem of visible surface determination.
+Simple straight horizontal or vertical corridors are often no longer sufficient.
+To solve this, we introduce **L-shaped corridors**.
 
-Uses of BSP
-- It is used in collision detection in 3D video games and robotics.
-- it is used in ray tracing
-- it is involved in the handling of complex spatial scenes=
+Using these new shaped corridors we create a more organic dungeon layout.
+[image complete BSP with corridors]
 
-# BSP for roguelike dungeon generationnnnnnnn
-## Dungeon generation using BSP trees https://medium.com/@guribemontero/dungeon-generation-using-binary-space-trees-47d4a668e2d0
-The tricky part in procedural generation is not to make things random, but to make them in a **consistent** way despite its randomness.
+## Result
+Using BSP, we can generate two different dungeon styles:
+- A simple trimmed layout with structured rooms
+- A randomized layout with more natural room variation
+Both approaches create a connected and usable procedural dungeon.
 
-BSP is a recursive blablabalbal
+## Conclusion
+This implementation demonstrates how an algorithm originally designed for rendering/collision optimization can be repurposed for procedural dungeon generation.
 
-with these generated spaces we're going to use the space divisions generated by this method to define the area a room will use and the tree defined implicitly by it to know which rooms to connect.
+By recursively subdividing space and applying controlled randomness, BSP provides a reliable way to create structured yet varied dungeon layouts.
 
-this project also uses **UNITY** as i was planning to.
+Possible future improvements include:
+- Corridors not overlapping rooms
+- Room type randomization
+- Combine it with other algorithms to generate an even better dungeons
 
-Step 1 Space division (BSP)
-step 2 adding borders (adding padding between the "rooms")
-step 3 adding coridors (connecting all the rooms with eachtoher through using leafs of the Binary space tree)
-
-## Basic BSP Dungeon generation https://www.roguebasin.com/index.php/Basic_BSP_Dungeon_generation
-split a rectangle AANNNNDDD exacty same steps as the previous article
-NVM with step 2. we could **randomize** the scale of the leaf. making it even more random. and giving them even a new location in the leaf area.
-
-# Procedural dungeon generation survey papers (inspiration)
-## A Survey of Procedural Dungeon Generation https://www.sbgames.org/sbgames2019/files/papers/ComputacaoFull/198359.pdf
-## honeslty probably the same as above but through a third party website https://www.researchgate.net/publication/353921862_Procedural_Dungeon_Generation_A_Survey
+## References (possible links)
+- Wikipedia - BSP (https://en.wikipedia.org/wiki/Binary_space_partitioning#Overview)
+- GeeksForGeeks - BSP (https://www.geeksforgeeks.org/dsa/binary-space-partitioning/)
+- Medium - Dungeon Generation using BSP Trees (https://medium.com/@guribemontero/dungeon-generation-using-binary-space-trees-47d4a668e2d0)
+- Rogue Basin - Basic BSP Dungeon Generation (https://www.roguebasin.com/index.php/Basic_BSP_Dungeon_generation)
+- Research Gate - Procedural Dungeon Generation (https://www.researchgate.net/publication/353921862_Procedural_Dungeon_Generation_A_Survey) 
